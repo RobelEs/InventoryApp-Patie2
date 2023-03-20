@@ -77,6 +77,7 @@ class AddItemFragment : Fragment() {
             itemName.setText(item.itemName, TextView.BufferType.SPANNABLE)
             itemPrice.setText(price , TextView.BufferType.SPANNABLE)
             itemCount.setText(item.quantityInStock.toString(), TextView.BufferType.SPANNABLE)
+            saveAction.setOnClickListener { updateItem() }
         }
     }
 
@@ -92,12 +93,19 @@ class AddItemFragment : Fragment() {
         }
     }
 
-    /**
-     * Called when the view is created.
-     * The itemId Navigation argument determines the edit item  or add new item.
-     * If the itemId is positive, this method retrieves the information from the database and
-     * allows the user to update it.
-     */
+    private fun updateItem(){
+        if(isEntryValid()){
+            viewModel.updateItem(
+                this.navigationArgs.itemId,
+                this.binding.itemName.text.toString(),
+                this.binding.itemPrice.text.toString(),
+                this.binding.itemCount.text.toString()
+            )
+            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+            findNavController().navigate(action)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
