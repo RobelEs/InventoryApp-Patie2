@@ -28,6 +28,24 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
 
     val allItems: LiveData<List<Item>> = itemDao.getItems().asLiveData( )
 
+    fun isStockAvailable(item: Item): Boolean{
+        return (item.quantityInStock > 0)
+    }
+
+
+    private fun updateItem(item: Item) {
+        viewModelScope.launch {
+            itemDao.update(item)
+        }
+    }
+
+    fun sellItem(item: Item){
+        if(item.quantityInStock > 0 ){
+            val newItem = item.copy(quantityInStock = item.quantityInStock -1)
+            updateItem(newItem)
+        }
+    }
+
     fun addNewItem(itemName: String, itemPrice: String, itemCount: String) {
         val newItem = getNewItemEntry(itemName, itemPrice, itemCount)
         insertItem(newItem)
@@ -45,9 +63,12 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
-    /**
-     * Returns true if the EditTexts are not empty
-     */
+    fun deleteItem(item: Item){
+        viewModelScope.launch{
+            itemDao.delete(item)
+        }
+    }
+
     fun isEntryValid(itemName: String, itemPrice: String, itemCount: String): Boolean {
         if (itemName.isBlank() || itemPrice.isBlank() || itemCount.isBlank()) {
             return false
